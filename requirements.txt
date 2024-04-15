@@ -1,0 +1,8 @@
+fastapi
+pyautogen
+pydantic
+websocket
+uvicorn
+jupyter_client
+jupyter_kernel_gateway
+ipykernel
