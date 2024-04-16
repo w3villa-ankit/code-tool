@@ -41,9 +41,11 @@ jobs:
 
       - name: Install kustomize
         uses: imranismail/setup-kustomize@v1
-
       - name: Decode Kubernetes config
-        run: echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
+        shell: bash  
 
       - name: Deploy to Kubernetes Cluster
         run: kubectl get pods -A
