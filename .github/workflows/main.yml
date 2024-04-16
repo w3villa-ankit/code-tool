@@ -3,7 +3,7 @@ name: Build and Deploy to Scaleway
 on:
   push:
     branches:
-      - main  # Set the branch according to your workflow needs
+      - master  # Set the branch according to your workflow needs
 
 jobs:
   build_and_push:
