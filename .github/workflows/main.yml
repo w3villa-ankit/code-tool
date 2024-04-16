@@ -1,0 +1,49 @@
+name: Build and Deploy to Scaleway
+
+on:
+  push:
+    branches:
+      - main  # Set the branch according to your workflow needs
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Scaleway Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: rg.${{ secrets.SCW_REGION }}.scw.cloud
+          username: nologin
+          password: ${{ secrets.SCW_SECRET_KEY }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: rg.${{ secrets.SCW_REGION }}.scw.cloud/${{ secrets.SCW_REGISTRY_NAMESPACE }}/${{secrets.REPO_GITHUB}}:latest
+
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v1
+
+      - name: Install kustomize
+        uses: imranismail/setup-kustomize@v1
+
+      - name: Decode Kubernetes config
+        run: echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
+
+      - name: Deploy to Kubernetes Cluster
+        run: kubectl get pods -A
